@@ -470,7 +470,7 @@ export class WaypointPanel implements OnInit, OnDestroy {
     if (!query || query.trim().length < 2) return [];
     
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+      const url = `${environment.nominatimUrl}/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
       const response = await fetch(url);
       const data = await response.json();
       

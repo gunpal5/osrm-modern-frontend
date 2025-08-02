@@ -2,7 +2,6 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoutingService } from '../services/routing';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import osrmTextInstructions from 'osrm-text-instructions';
 
 @Component({
   selector: 'app-directions-panel',
@@ -267,23 +266,23 @@ export class DirectionsPanel implements OnInit {
         try {
           let text = '';
           
-          // Check if instruction has OSRM format data
-          if (instruction.type && instruction.modifier) {
-            // OSRM format - use osrm-text-instructions
-            const step = {
-              type: instruction.type,
-              modifier: instruction.modifier,
-              name: instruction.name || instruction.road || '',
-              exit: instruction.exit
-            };
-            
-            text = osrmTextInstructions.compile(language, step, {
-              legIndex: 0,
-              legCount: 1
-            });
-          } else if (instruction.text) {
-            // Plain text instruction from Leaflet
+          // Leaflet Routing Machine already provides localized text
+          if (instruction.text) {
             text = instruction.text;
+          } else {
+            // Fallback: construct basic text from available data
+            const parts = [];
+            if (instruction.type) {
+              const type = instruction.type.replace(/([A-Z])/g, ' $1').trim();
+              parts.push(type);
+            }
+            if (instruction.modifier) {
+              parts.push(instruction.modifier.toLowerCase());
+            }
+            if (instruction.name || instruction.road) {
+              parts.push(`on ${instruction.name || instruction.road}`);
+            }
+            text = parts.join(' ') || 'Continue';
           }
           
           instructions.push({

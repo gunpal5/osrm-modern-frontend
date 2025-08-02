@@ -1,9 +1,13 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter } from '@angular/core';
-import * as L from 'leaflet';
-import 'leaflet-routing-machine';
 import { RoutingService } from '../services/routing';
 import { environment } from '../../environments/environment';
 import { TileLayer } from '../tile-layer-switcher/tile-layer-switcher';
+
+// Import types only
+import type { Map as LeafletMap, TileLayer as LeafletTileLayer, Polyline, Icon, LatLng, LeafletMouseEvent } from 'leaflet';
+
+// Declare Leaflet as a global variable with routing extensions
+declare const L: any;
 
 @Component({
   selector: 'app-map',
@@ -20,10 +24,10 @@ import { TileLayer } from '../tile-layer-switcher/tile-layer-switcher';
   `
 })
 export class Map implements OnInit, AfterViewInit {
-  private map!: L.Map;
-  private routingControl!: L.Routing.Control;
-  private currentTileLayer!: L.TileLayer;
-  private highlightLayer?: L.Polyline;
+  private map!: LeafletMap;
+  private routingControl!: any; // L.Routing.Control
+  private currentTileLayer!: LeafletTileLayer;
+  private highlightLayer?: Polyline;
   private currentRoute: any;
   @Output() routeChanged = new EventEmitter<any>();
   @Output() waypointsChanged = new EventEmitter<any[]>();
@@ -59,7 +63,7 @@ export class Map implements OnInit, AfterViewInit {
     this.initializeMap();
     this.setupRouting();
     
-    // Subscribe to waypoint changes
+    // Subscribe to waypoint changes after routing is set up
     this.routingService.waypoints$.subscribe(waypoints => {
       // Always update waypoints, even if empty
       this.updateWaypoints(waypoints);
@@ -101,7 +105,7 @@ export class Map implements OnInit, AfterViewInit {
     this.currentTileLayer.addTo(this.map);
 
     // Add click handler for adding waypoints
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
+    this.map.on('click', (e: LeafletMouseEvent) => {
       const waypoints = this.routingService.getWaypoints();
       if (waypoints.length < 2) {
         this.routingService.addWaypoint(e.latlng);
@@ -213,7 +217,7 @@ export class Map implements OnInit, AfterViewInit {
     });
   }
 
-  private createIcon(index: number, total: number): L.Icon {
+  private createIcon(index: number, total: number): Icon {
     let iconUrl = '/assets/marker-icon.png';
     let shadowUrl = '/assets/marker-shadow.png';
     let className = 'waypoint-marker';
@@ -247,6 +251,12 @@ export class Map implements OnInit, AfterViewInit {
     // Prevent recursive updates
     if (this.isUpdatingWaypoints) {
       // Skipping waypoint update - already updating
+      return;
+    }
+    
+    // Check if routing control is initialized
+    if (!this.routingControl) {
+      console.warn('Routing control not yet initialized');
       return;
     }
     
@@ -310,7 +320,7 @@ export class Map implements OnInit, AfterViewInit {
     this.map.zoomOut();
   }
 
-  public panTo(latLng: L.LatLng): void {
+  public panTo(latLng: LatLng): void {
     this.map.panTo(latLng);
   }
   
@@ -376,9 +386,11 @@ export class Map implements OnInit, AfterViewInit {
     }).addTo(this.map);
     
     // Optionally pan to the segment
-    const bounds = this.highlightLayer.getBounds();
-    if (bounds.isValid()) {
-      this.map.fitBounds(bounds, { padding: [50, 50] });
+    if (this.highlightLayer) {
+      const bounds = this.highlightLayer.getBounds();
+      if (bounds.isValid()) {
+        this.map.fitBounds(bounds, { padding: [50, 50] });
+      }
     }
   }
 

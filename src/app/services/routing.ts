@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import * as L from 'leaflet';
+import { environment } from '../../environments/environment';
+import type { LatLng } from 'leaflet';
+
+// Declare Leaflet as a global variable (for runtime)
+declare const L: any;
 
 export interface Waypoint {
   lat?: number;
@@ -157,7 +161,7 @@ export class RoutingService {
     this.updateUrlParams();
   }
 
-  addWaypoint(latLng: L.LatLng | Waypoint): void {
+  addWaypoint(latLng: LatLng | Waypoint): void {
     const newWaypoint: Waypoint = 'lat' in latLng 
       ? latLng 
       : { lat: latLng.lat, lng: latLng.lng };
@@ -167,7 +171,7 @@ export class RoutingService {
     this.updateUrlParams();
   }
 
-  updateWaypoint(index: number, latLng: L.LatLng | Waypoint): void {
+  updateWaypoint(index: number, latLng: LatLng | Waypoint): void {
     const waypoints = [...this.waypoints.value];
     if (index >= 0 && index < waypoints.length) {
       waypoints[index] = 'lat' in latLng 
@@ -273,8 +277,8 @@ export class RoutingService {
   }
 
   geocodeAddress(address: string): Promise<Waypoint[]> {
-    // Use proxied Nominatim URL to avoid CORS issues
-    const url = `/nominatim/search?format=json&q=${encodeURIComponent(address)}&limit=5`;
+    // Use direct Nominatim URL with proper headers
+    const url = `${environment.nominatimUrl}/search?format=json&q=${encodeURIComponent(address)}&limit=5`;
     
     return fetch(url, {
       headers: {
@@ -307,8 +311,8 @@ export class RoutingService {
       // Add small delay to respect Nominatim rate limits
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Use proxied URL to avoid CORS issues
-      const url = `/nominatim/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+      // Use direct Nominatim URL with proper headers
+      const url = `${environment.nominatimUrl}/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
       
       const response = await fetch(url, {
         headers: {
