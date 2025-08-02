@@ -1,0 +1,129 @@
+/* You can add global styles to this file, and also import other style files */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* Leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
+
+/* Fix Leaflet default marker icon paths */
+.leaflet-default-icon-path {
+  background-image: url(/assets/marker-icon.png);
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Hide Leaflet Routing Machine's default UI completely */
+.leaflet-routing-container {
+  display: none !important;
+}
+
+.leaflet-routing-alternatives-container {
+  display: none !important;
+}
+
+.leaflet-routing-geocoders {
+  display: none !important;
+}
+
+.leaflet-routing-error {
+  display: none !important;
+}
+
+.leaflet-control-container .leaflet-routing-container {
+  display: none !important;
+}
+
+/* Hide any routing-related popups */
+.leaflet-routing-container-waypoint {
+  display: none !important;
+}
+
+/* Professional custom markers */
+.marker-container {
+  background: none !important;
+  border: none !important;
+}
+
+.custom-marker {
+  width: 30px;
+  height: 42px;
+  position: relative;
+  text-align: center;
+  cursor: pointer;
+  
+  /* Marker pin shape using CSS */
+  &::before {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    left: 0;
+    top: 0;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Marker label */
+  span {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    z-index: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Start marker (A) - Green */
+  &.start-marker::before {
+    background: #22c55e;
+    border: 2px solid #16a34a;
+  }
+  
+  /* End marker (B) - Red */
+  &.end-marker::before {
+    background: #ef4444;
+    border: 2px solid #dc2626;
+  }
+  
+  /* Via markers - Blue */
+  &.via-marker::before {
+    background: #3b82f6;
+    border: 2px solid #2563eb;
+  }
+  
+  /* Hover effect */
+  &:hover::before {
+    transform: rotate(-45deg) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
